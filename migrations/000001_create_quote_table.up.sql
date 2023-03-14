@@ -1,0 +1,7 @@
+CREATE TABLE IF EXISTS quotes {
+    quote_id BIGSERIAL PRIMARY KEY NOT NULL,
+    quote TEXT NOT NULL,
+    author TEXT NOT NULL,
+    created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL DEFAULT NOW()
+
+};
