@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/abelwhite/quotes/helpers"
+	"github.com/Aazan-Iqbal/quote-class-act/helpers"
 )
 
 // creating handler function called greeting

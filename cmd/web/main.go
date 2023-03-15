@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/abelwhite/quotes/internal/models"
+	"github.com/Aazan-Iqbal/quote-class-act/internal/models"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 

@@ -1,4 +1,4 @@
-module github.com/Aazan-Iqbal/a1-class
+module github.com/Aazan-Iqbal/quote-class-act
 
 go 1.19
 
