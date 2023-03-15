@@ -1,3 +1,5 @@
+//filename: quotes/cmd/web
+
 package main
 
 import (
@@ -9,60 +11,63 @@ import (
 	"os"
 	"time"
 
-	"github.com/Aazan-Iqbal/a1-class/internal/models"
+	"github.com/abelwhite/quotes/internal/models"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-// Share data across our handlers
+// create a new type
+// dependancy injection is a way to neatly expose data to all the handler
+// alows data to be shared accroos different handlers(centralized repository)
 type application struct {
-	quotes models.QuoteModel
+	quote models.QuoteModel
 }
 
 func main() {
-	// configure our server
-	addr := flag.String("addr", ":4000", "HTTP network address")
-	dsn := flag.String("dsn", os.Getenv("RCSYSTEM_DB_DSN"), "PostgreSQL DSN")
+	//Create a flag for specifing the port number when starting the server
+	addr := flag.String("port", ":4000", "HTTP network address")
+	dsn := flag.String("dsn", os.Getenv("QUOTES_DB_DSN"), "PostgreSQL DSN")
 	flag.Parse()
 
-	// get a database connection pool
+	//create an instance to the application pool
 	db, err := openDB(*dsn)
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		return
 	}
 
-	// share data across our handlers
+	//create a new instance of the application type
 	app := &application{
-		quotes: models.QuoteModel{DB: db},
-	
+		quote: models.QuoteModel{
+			DB: db,
+		},
 	}
-	// cleanup the connection pool
-	defer db.Close()
-	// acquired a database connection pool
-	log.Println("database connection pool established")
-	// create and start a custom web server
-	log.Printf("starting server on %s", *addr)
-	srv := &http.Server{
-		Addr:         *addr,
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+
+	defer db.Close() //if we dont close the application loop we have memory leak
+	log.Println("Database connection pool established")
+
+	//create a customized server
+	srv := &http.Server{ //web server is listening for requests and send to router
+		Addr:    *addr,
+		Handler: app.routes(), //we created this routes server
+
 	}
+
+	log.Printf("Starting Server on port %s", *addr)
 	err = srv.ListenAndServe()
-	log.Fatal(err)
+	log.Fatal(err) //should never be reached
 }
 
-// The openDB() function returns a database connection pool or error
+// Get a database connection pool
 func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("pgx", dsn)
+	db, err := sql.Open("pgx", dsn) //check if dsn work
 	if err != nil {
 		return nil, err
 	}
-	// create a context
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	// test the DB connection
+	//use a context to check if the DB is reachable
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel() //defer helps us not to use it in every if
+
+	//lets ping the db
 	err = db.PingContext(ctx)
 	if err != nil {
 		return nil, err

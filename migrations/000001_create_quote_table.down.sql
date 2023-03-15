@@ -1,1 +1,1 @@
-DROP IF EXISTS quotes;
+DROP TABLE IF EXISTS quotes;
